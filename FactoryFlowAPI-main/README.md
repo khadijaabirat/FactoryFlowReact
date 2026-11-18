@@ -1,0 +1,195 @@
+# 🏭 FactoryFlow API - Gestion Sécurisée de Production & Stock Industriel
+
+> **API REST industrielle sécurisée** pour la gestion des ordres de fabrication multi-produits et le suivi des stocks de matières premières avec déduction atomique (ACID). Conçue pour une usine mécanique de fabrication de vannes et composants industriels à **Safi, Maroc**.
+
+---
+
+## 📑 Sommaire
+- [Architecture & Modèle Métier](#-architecture--modèle-métier)
+- [Fonctionnalités Principales](#-fonctionnalités-principales)
+- [Technologies Utilisées](#-technologies-utilisées)
+- [Installation & Démarrage Rapide](#-installation--démarrage-rapide)
+- [Documentation Interactive (Swagger UI)](#-documentation-interactive-swagger-ui)
+- [Tests Unitaires & Couverture](#-tests-unitaires--couverture)
+- [Endpoints & Guide de l'API](#-endpoints--guide-de-lapi)
+- [Gestion des Données de Test (Seed)](#-gestion-des-données-de-test-seed)
+
+---
+
+## 🏛️ Architecture & Modèle Métier
+
+L'application respecte une **architecture en couches stricte** garantissant la séparation des responsabilités :
+- **Routes (`src/routes/`)** : Déclaration des routes, protection JWT et filtrage RBAC.
+- **Contrôleurs (`src/controllers/`)** : Gestion des requêtes HTTP et réponses JSON via `asyncHandler`.
+- **Services (`src/services/`)** : Logique métier, validations industrielles et transactions ACID.
+- **Repositories (`src/repositories/`)** : Abstraction de la persistance des données MongoDB.
+- **Modèles (`src/models/`)** : Schémas Mongoose typés avec contraintes et index.
+
+### 📐 Modélisation du Domaine (BOM & Multi-Produits)
+Conformément aux exigences pédagogiques et industrielles :
+1. **Ordre Multi-Produits (`Order`)** : Un ordre de fabrication contient un tableau `items: [OrderItem]` permettant de commander la fabrication simultanée de plusieurs références de produits avec leurs quantités respectives.
+2. **Snapshot Figé de Recette (`OrderSnapshotItem`)** : Lors de la création d'un ordre, la nomenclature BOM de chaque produit est **figée dans le snapshot de l'ordre**. Ainsi, toute modification ultérieure de la recette d'un produit n'altère pas les ordres planifiés existants.
+3. **Déduction Atomique ACID** : Le lancement d'un ordre vérifie la disponibilité de l'ensemble des matières cumulées sur tous les items. Si toutes les matières sont disponibles, la déduction des stocks et l'enregistrement des mouvements `OUT` s'exécutent au sein d'une **transaction ACID MongoDB**. En cas d'indisponibilité ou d'erreur, aucun stock n'est débité (Rollback intégral).
+
+---
+
+## ✨ Fonctionnalités Principales
+
+- **🔐 Authentification & Rôles (RBAC)** :
+  - `ADMIN` : Configuration usine, gestion des utilisateurs, création des matières, recettes BOM et planification des ordres.
+  - `OPERATOR` : Consultation des ordres assignés (`/orders/my-orders`), lancement avec déduction atomique (`/orders/:id/start`) et clôture (`/orders/:id/finish`).
+- **📦 Gestion des Matières Premières & Alertes** :
+  - Détection automatique des matières en rupture ou proches du seuil critique (`/api/materials/alerts/low-stock`).
+  - Traçabilité et historique complet des mouvements (`IN` / `OUT`) avec horodatage et auteur.
+- **⚙️ Nomenclatures BOM (Bill of Materials)** :
+  - Définition de recettes multi-matières par produit avec validation d'unicité et de quantités positives.
+- **⚡ Cycle de Vie d'un Ordre de Fabrication** :
+  - `PLANIFIE` $\rightarrow$ `EN_COURS` $\rightarrow$ `TERMINE` (ou `ANNULE`).
+  - Interdiction formelle de relancer un ordre déjà démarré ou de modifier un ordre non-planifié.
+
+---
+
+## 🛠️ Technologies Utilisées
+
+| Composant | Technologie |
+|---|---|
+| **Runtime** | Node.js v20+ LTS |
+| **Framework Web** | Express.js 4.x |
+| **Base de Données** | MongoDB 7.x configuré en **Replica Set `rs0`** (support natif des transactions ACID) |
+| **ODM** | Mongoose 8.x |
+| **Conteneurisation** | Docker & Docker Compose |
+| **Sécurité** | JWT (JSON Web Tokens), Bcrypt.js, CORS |
+| **Documentation API** | Swagger UI (`swagger-ui-express`) & spécification OpenAPI 3.0 (`yamljs`) |
+| **Tests Unitaires** | Jest 29.x avec Mocks de repositories |
+
+---
+
+## 🚀 Installation & Démarrage Rapide
+
+### Prérequis
+- [Docker](https://www.docker.com/) & Docker Compose installés et en cours d'exécution.
+- [Node.js](https://nodejs.org/) v20+ (optionnel si exécution via Docker).
+
+### 1. Cloner le Dépôt
+```bash
+git clone https://github.com/khadijaabirat/FactoryFlowAPI.git
+cd FactoryFlowAPI
+```
+
+### 2. Configuration des Variables d'Environnement
+Créer le fichier `.env` à la racine (basé sur `.env.example`) :
+```env
+PORT=5001
+NODE_ENV=development
+MONGO_URI=mongodb://mongodb:27017/factoryflow?replicaSet=rs0
+JWT_SECRET=supersecretjwtkeyfactoryflow2026industriel
+JWT_EXPIRES_IN=24h
+```
+
+### 3. Démarrer avec Docker Compose
+```bash
+docker compose up -d
+```
+Les conteneurs démarrent automatiquement :
+- **API FactoryFlow** : `http://localhost:5001`
+- **MongoDB ReplicaSet (rs0)** : Port hôte `27018` $\rightarrow$ Port conteneur `27017`
+
+---
+
+## 📖 Documentation Interactive (Swagger UI)
+
+L'API dispose d'une documentation interactive Swagger/OpenAPI 3.0 complète :
+
+👉 Accédez à la documentation sur : **[http://localhost:5001/api/docs](http://localhost:5001/api/docs)**
+
+Vous pouvez y tester tous les endpoints directement dans votre navigateur, vous authentifier avec le bouton **Authorize** (Bearer Token) et visualiser les schémas de données.
+
+---
+
+## 🧪 Tests Unitaires & Couverture
+
+Les tests unitaires sont rédigés avec **Jest** en utilisant des mocks de repositories pour garantir l'indépendance de la couche métier :
+
+Exécuter la suite complète de tests :
+```bash
+npm test
+```
+
+### Résultats des Tests :
+- `tests/unit/installation.service.test.js` :
+  - ✅ Vérification de l'état d'installation initial.
+  - ✅ Création de l'administrateur initial avec hachage du mot de passe.
+  - ✅ Rejet strict de toute tentative de réinstallation (HTTP 409 Conflict).
+  - ✅ Validation des champs obligatoires (HTTP 400).
+- `tests/unit/order.service.test.js` :
+  - ✅ Calcul global des besoins en matières pour tous les items de l'ordre.
+  - ✅ Refus immédiat avec HTTP 400 si le stock disponible est insuffisant (sans altération du stock).
+  - ✅ Démarrage réussi avec transaction ACID, déduction du stock et génération des mouvements `OUT`.
+  - ✅ Rejet de second démarrage sur un ordre déjà `EN_COURS` ou `TERMINE`.
+  - ✅ Clôture d'ordre avec passage à `TERMINE` et horodatage `endedAt`.
+
+---
+
+## 📡 Endpoints & Guide de l'API
+
+### 1. Installation & Authentification
+| Méthode | Endpoint | Accès | Description |
+|---|---|---|---|
+| `GET` | `/api/installation` | Public | Vérifier si l'application est déjà installée |
+| `POST` | `/api/installation` | Public | Créer le premier administrateur (unique) |
+| `POST` | `/api/auth/login` | Public | Connexion et obtention du JWT |
+| `GET` | `/api/auth/profile` | Authentifié | Profil de l'utilisateur connecté |
+
+### 2. Gestion des Utilisateurs
+| Méthode | Endpoint | Accès | Description |
+|---|---|---|---|
+| `GET` | `/api/users` | `ADMIN` | Liste des utilisateurs |
+| `POST` | `/api/users` | `ADMIN` | Créer un utilisateur (`ADMIN` ou `OPERATOR`) |
+
+### 3. Matières Premières & Mouvements de Stock
+| Méthode | Endpoint | Accès | Description |
+|---|---|---|---|
+| `GET` | `/api/materials` | Authentifié | Liste des matières premières |
+| `POST` | `/api/materials` | `ADMIN` | Ajouter une matière première |
+| `GET` | `/api/materials/alerts/low-stock` | Authentifié | Alertes de stock bas ou rupture |
+| `GET` | `/api/stock-movements` | Authentifié | Historique d'audit des mouvements |
+| `POST` | `/api/stock-movements` | Authentifié | Déclarer une entrée/sortie manuelle |
+
+### 4. Produits Finis & Recettes BOM
+| Méthode | Endpoint | Accès | Description |
+|---|---|---|---|
+| `GET` | `/api/products` | Authentifié | Liste des produits avec composition |
+| `POST` | `/api/products` | `ADMIN` | Créer un produit avec recette |
+| `POST` | `/api/products/:id/bom` | `ADMIN` | Mettre à jour la nomenclature (BOM) |
+
+### 5. Ordres de Fabrication Multi-Produits
+| Méthode | Endpoint | Accès | Description |
+|---|---|---|---|
+| `GET` | `/api/orders` | `ADMIN` | Liste des ordres avec filtres (`status`, `assignedTo`) |
+| `POST` | `/api/orders` | `ADMIN` | Créer un ordre multi-produits (snapshot figé) |
+| `GET` | `/api/orders/my-orders` | Opérateur | Ordres affectés à l'opérateur connecté |
+| `GET` | `/api/orders/:id` | Authentifié | Détail d'un ordre avec ses items et snapshots |
+| `PUT` | `/api/orders/:id` | `ADMIN` | Modifier un ordre (statut `PLANIFIE` uniquement) |
+| `POST` | `/api/orders/:id/start` | Authentifié | **Démarrage atomique ACID** (déduction stock) |
+| `POST` | `/api/orders/:id/finish` | Authentifié | Clôture de l'ordre (passage à `TERMINE`) |
+| `POST` | `/api/orders/:id/cancel` | `ADMIN` | Annuler un ordre (`PLANIFIE` uniquement) |
+
+---
+
+## 🌾 Gestion des Données de Test (Seed)
+
+Pour initialiser ou réinitialiser rapidement un jeu complet de données de démonstration :
+```bash
+node scripts/seed.js
+```
+
+### Comptes de Démonstration Générés :
+- **Administrateur** : `admin@factoryflow.com` / `Password123!`
+- **Opérateur** : `rachid@factoryflow.com` / `Password123!`
+
+---
+
+## 👩‍💻 Auteur & Licence
+- **Développeur** : Khadija Abirat ([abiratkhadija@gmail.com](mailto:abiratkhadija@gmail.com))
+- **Projet** : FactoryFlow Industrial Production API
+- **Licence** : ISC
