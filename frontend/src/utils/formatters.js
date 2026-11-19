@@ -1,16 +1,17 @@
-export function(dateString){
-    if(!dateString)return '-';
-    const date= new date(dateString);
-    return new Intl.DateTimeFormat('fr-FR',{
-        day:'2-digit',
-        month:'2-digit',
-        year:'numeric',
-        hour:'2-digit',
-        minute:'2-digit',
-    }).format(date);
+export function formatDate(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 }
-export function getStatusBadge(status){
-    switch(status){
+
+export function getStatusBadge(status) {
+  switch (status) {
     case 'PLANIFIE':
       return { label: 'Planifié', className: 'bg-blue-100 text-blue-800 border-blue-300' };
     case 'EN_COURS':
@@ -21,5 +22,5 @@ export function getStatusBadge(status){
       return { label: 'Annulé', className: 'bg-rose-100 text-rose-800 border-rose-300' };
     default:
       return { label: status || 'Inconnu', className: 'bg-slate-100 text-slate-800 border-slate-300' };
-    }
+  }
 }

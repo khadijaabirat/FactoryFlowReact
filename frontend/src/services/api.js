@@ -1,6 +1,6 @@
 import axios from 'axios';
 const api = axios.create({
-    baseURL:import.meta.env.VITE_API_URL ,
+    baseURL:import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
     headers:{
         'Content-Type':'application/json',
     },
@@ -27,9 +27,15 @@ api.interceptors.response.use((response)=>{
     if(error.response && error.response.status===401){
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        if(window.location.pathname!='/login')
+        if(window.location.pathname!='/login' && window.location.pathname!='/instalation')
         window.location.href='/login';
+    }
+    if(error.response && error.response.status==403){
+        if(window.location.pathname!=='/access-denied'){
+            window.location.href='/access-denied';
+        }
     }
     return Promise.reject(error);
 });
 export default api;
+api.get('/health').then(res => console.log('API Connectée :', res.data));
