@@ -51,7 +51,13 @@ import api from '../services/api';
     setUser(newUser);
     return newUser;
   };
-
+const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+    window.location.href = '/login';
+  };
    const isAuthenticated = Boolean(token && user);
   const isAdmin = user?.role === 'ADMIN';
   const isOperator = user?.role === 'OPERATOR';
@@ -66,6 +72,7 @@ import api from '../services/api';
     isAdmin,
     isOperator,
     login,
+    logout,
   };
 
   return (
