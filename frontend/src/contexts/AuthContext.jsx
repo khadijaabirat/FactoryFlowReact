@@ -42,6 +42,16 @@ import api from '../services/api';
     loadUserProfile();
   }, []);
 
+  const login = async (email, password) => {
+    const response = await api.post('/auth/login', { email, password });
+    const { token: newToken, user: newUser } = response.data.data;
+     localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+     setToken(newToken);
+    setUser(newUser);
+    return newUser;
+  };
+
    const isAuthenticated = Boolean(token && user);
   const isAdmin = user?.role === 'ADMIN';
   const isOperator = user?.role === 'OPERATOR';
@@ -55,6 +65,7 @@ import api from '../services/api';
     isAuthenticated,
     isAdmin,
     isOperator,
+    login,
   };
 
   return (
