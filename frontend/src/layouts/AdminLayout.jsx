@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import Header from '../components/layout/Header';
 import { 
   LayoutDashboard, 
   Boxes, 
@@ -54,8 +55,9 @@ export default function AdminLayout() {
       </aside>
 
        <div className="flex-1 flex flex-col min-w-0 bg-slate-900">
+        <Header />
         <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto overflow-y-auto">
-           <Outlet />
+          <Outlet />
         </main>
       </div>
     </div>
