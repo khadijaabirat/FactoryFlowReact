@@ -1,0 +1,48 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: factoryflow-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - factoryflow-net
+
+  api:
+    build:
+      context: ./FactoryFlowAPI-main
+    container_name: factoryflow-api
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb://mongo:27017/factoryflow
+      - JWT_SECRET=factoryflow_super_secret_jwt_key
+    depends_on:
+      - mongo
+    networks:
+      - factoryflow-net
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5001/api
+    container_name: factoryflow-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - factoryflow-net
+
+volumes:
+  mongo_data:
+
+networks:
+  factoryflow-net:
+    driver: bridge
