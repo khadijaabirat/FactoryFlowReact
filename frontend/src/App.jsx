@@ -9,6 +9,7 @@ import AccessDeniedPage from './pages/auth/AccessDeniedPage';
 import NotFoundPage from './pages/auth/NotFoundPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import MaterialsListPage from './pages/admin/MaterialsListPage';
+import StockMovementsPage from './pages/admin/StockMovementsPage';
 export default function App() {
   return (
     <Routes>
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
 <Route path="materials" element={<MaterialsListPage />} />
+            <Route path="stock-movements" element={<StockMovementsPage />} />
             <Route path="products" element={<div>Produits (à venir)</div>} />
             <Route path="orders" element={<div>Ordres de fabrication (à venir)</div>} />
             <Route path="users" element={<div>Utilisateurs (à venir)</div>} />

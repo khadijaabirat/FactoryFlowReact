@@ -3,6 +3,7 @@ import Header from '../components/layout/Header';
 import { 
   LayoutDashboard, 
   Boxes, 
+  History,
   Package, 
   ClipboardList, 
   Users 
@@ -12,6 +13,7 @@ export default function AdminLayout() {
    const navItems = [
     { to: '/admin', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
     { to: '/admin/materials', label: 'Matières premières', icon: Boxes },
+    { to: '/admin/stock-movements', label: 'Mouvements de stock', icon: History },
     { to: '/admin/products', label: 'Produits & Recettes', icon: Package },
     { to: '/admin/orders', label: 'Ordres de fabrication', icon: ClipboardList },
     { to: '/admin/users', label: 'Utilisateurs', icon: Users },
