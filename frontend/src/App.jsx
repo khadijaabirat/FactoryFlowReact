@@ -12,6 +12,7 @@ import MaterialsListPage from './pages/admin/MaterialsListPage';
 import StockMovementsPage from './pages/admin/StockMovementsPage';
 import ProductsListPage from './pages/admin/ProductsListPage';
 import OrdersListPage from './pages/admin/OrdersListPage';
+import OperatorOrdersPage from './pages/operator/OperatorOrdersPage';
 export default function App() {
   return (
     <Routes>
@@ -33,7 +34,7 @@ export default function App() {
 
          <Route element={<RoleRoute allowedRoles={['OPERATOR']} />}>
           <Route path="/operator" element={<OperatorLayout />}>
-            <Route index element={<div>Mes ordres (à venir)</div>} />
+            <Route index element={<OperatorOrdersPage />} />
           </Route>
         </Route>
       </Route>
