@@ -11,6 +11,7 @@ import DashboardPage from './pages/admin/DashboardPage';
 import MaterialsListPage from './pages/admin/MaterialsListPage';
 import StockMovementsPage from './pages/admin/StockMovementsPage';
 import ProductsListPage from './pages/admin/ProductsListPage';
+import OrdersListPage from './pages/admin/OrdersListPage';
 export default function App() {
   return (
     <Routes>
@@ -25,7 +26,7 @@ export default function App() {
 <Route path="materials" element={<MaterialsListPage />} />
             <Route path="stock-movements" element={<StockMovementsPage />} />
             <Route path="products" element={<ProductsListPage />} />
-            <Route path="orders" element={<div>Ordres de fabrication (à venir)</div>} />
+            <Route path="orders" element={<OrdersListPage />} />
             <Route path="users" element={<div>Utilisateurs (à venir)</div>} />
           </Route>
         </Route>
