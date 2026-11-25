@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, Pencil, Trash2, AlertTriangle, Boxes } from 'lucide-react';
 import materialService from '../../services/materialService';
+import MaterialForm from '../../components/admin/MaterialForm';
 
 export default function MaterialsListPage() {
   const [materials, setMaterials] = useState([]);
@@ -8,6 +9,7 @@ export default function MaterialsListPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [formMaterial, setFormMaterial] = useState(undefined);
 
   const fetchMaterials = async () => {
     try {
@@ -63,7 +65,7 @@ export default function MaterialsListPage() {
           Matières premières
         </h1>
         <button
-          onClick={() => window.dispatchEvent(new CustomEvent('open-material-form', { detail: null }))}
+          onClick={() => setFormMaterial(null)}
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition shadow-lg shadow-blue-600/20"
         >
           <Plus className="w-4 h-4" />
@@ -133,7 +135,7 @@ export default function MaterialsListPage() {
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => window.dispatchEvent(new CustomEvent('open-material-form', { detail: mat }))}
+                            onClick={() => setFormMaterial(mat)}
                             className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition"
                             title="Modifier"
                           >
@@ -183,6 +185,17 @@ export default function MaterialsListPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {formMaterial !== undefined && (
+        <MaterialForm
+          material={formMaterial}
+          onClose={() => setFormMaterial(undefined)}
+          onSaved={() => {
+            setFormMaterial(undefined);
+            fetchMaterials();
+          }}
+        />
       )}
     </div>
   );
