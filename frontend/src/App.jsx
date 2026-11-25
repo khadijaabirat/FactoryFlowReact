@@ -10,6 +10,7 @@ import NotFoundPage from './pages/auth/NotFoundPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import MaterialsListPage from './pages/admin/MaterialsListPage';
 import StockMovementsPage from './pages/admin/StockMovementsPage';
+import ProductsListPage from './pages/admin/ProductsListPage';
 export default function App() {
   return (
     <Routes>
@@ -23,7 +24,7 @@ export default function App() {
             <Route index element={<DashboardPage />} />
 <Route path="materials" element={<MaterialsListPage />} />
             <Route path="stock-movements" element={<StockMovementsPage />} />
-            <Route path="products" element={<div>Produits (à venir)</div>} />
+            <Route path="products" element={<ProductsListPage />} />
             <Route path="orders" element={<div>Ordres de fabrication (à venir)</div>} />
             <Route path="users" element={<div>Utilisateurs (à venir)</div>} />
           </Route>
